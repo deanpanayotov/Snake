@@ -4,8 +4,6 @@
 
 function Snake(segments) {
 
-    this.grow = false;
-
     this.draw = function () {
         this.segments.forEach(function (segment) {
             drawSquare(segment, COLOR_FRGR);
@@ -13,7 +11,7 @@ function Snake(segments) {
     };
 
     this.update = function () {
-        var head = new Segment((GRID_WIDTH + this.segments[0].x + dirX ) % GRID_WIDTH, (GRID_HEIGHT + this.segments[0].y + dirY) % GRID_HEIGHT);
+        var head = new Segment((GRID_WIDTH + this.segments[0].x + this.dirX ) % GRID_WIDTH, (GRID_HEIGHT + this.segments[0].y + this.dirY) % GRID_HEIGHT);
         if (this.bite(head) == 0) {
             if (this.grow) {
                 this.grow = false;
@@ -23,8 +21,8 @@ function Snake(segments) {
             }
             this.segments.unshift(head);
             drawSquare(this.segments[0], COLOR_FRGR);
-            prevDirX = dirX;
-            prevDirY = dirY;
+            this.prevDirX = this.dirX;
+            this.prevDirY = this.dirY;
         }
     };
 
@@ -42,6 +40,49 @@ function Snake(segments) {
         return 0;
     };
 
+    this.keyPress = function (e) {
+        var key = e.keyCode ? e.keyCode : e.charCode;
+        switch (key) {
+            case KEY_w:
+            case KEY_W:
+            case KEY_UP:
+                if (this.prevDirY != 1) {
+                    this.dirX = 0;
+                    this.dirY = -1;
+                }
+                break;
+            case KEY_a:
+            case KEY_A:
+            case KEY_LEFT:
+                if (this.prevDirX != 1) {
+                    this.dirX = -1;
+                    this.dirY = 0;
+                }
+                break;
+            case KEY_s:
+            case KEY_S:
+            case KEY_DOWN:
+                if (this.prevDirY != -1) {
+                    this.dirX = 0;
+                    this.dirY = 1;
+                }
+                break;
+            case KEY_d:
+            case KEY_D:
+            case KEY_RIGHT:
+                if (this.prevDirX != -1) {
+                    this.dirX = 1;
+                    this.dirY = 0;
+                }
+                break;
+        }
+    };
+
+    this.prevDirX = 0;
+    this.prevDirY = 0;
+    this.dirX = 0;
+    this.dirY = 0;
+    this.grow = false;
     this.segments = segments;
     if (segments === undefined) {
         this.segments = [
@@ -81,7 +122,9 @@ function Blinker(segment, color) {
     };
     this.start = function () {
         var that = this;
-        this.timer = setInterval(function(){that.blink()},
+        this.timer = setInterval(function () {
+                that.blink()
+            },
             this.blinkTime);
     };
 
@@ -96,7 +139,7 @@ dropFood = function () {
     do {
         //floor not round because round can return GRID_WIDTH/GRID_HEIGHT which would be outside of canvas!
         food.segment = new Segment(Math.floor(Math.random() * GRID_WIDTH), Math.floor(Math.random() * GRID_HEIGHT));
-        console.log("dorpFood "+food.segment.x);
+        console.log("dorpFood " + food.segment.x);
     } while (foodTouchesSnake());
 };
 
@@ -128,8 +171,6 @@ gameOver = function () {
     clearScreen();
     snake = new Snake();
     changeGameSpeed(INITIAL_GAME_SPEED);
-    dirX = 0;
-    dirY = 0;
 };
 
 drawSquare = function (segment, color) {
@@ -139,41 +180,7 @@ drawSquare = function (segment, color) {
 
 
 keyPress = function (e) {
-    var key = e.keyCode ? e.keyCode : e.charCode;
-    switch (key) {
-        case KEY_w:
-        case KEY_W:
-        case KEY_UP:
-            if (prevDirY != 1) {
-                dirX = 0;
-                dirY = -1;
-            }
-            break;
-        case KEY_a:
-        case KEY_A:
-        case KEY_LEFT:
-            if (prevDirX != 1) {
-                dirX = -1;
-                dirY = 0;
-            }
-            break;
-        case KEY_s:
-        case KEY_S:
-        case KEY_DOWN:
-            if (prevDirY != -1) {
-                dirX = 0;
-                dirY = 1;
-            }
-            break;
-        case KEY_d:
-        case KEY_D:
-        case KEY_RIGHT:
-            if (prevDirX != -1) {
-                dirX = 1;
-                dirY = 0;
-            }
-            break;
-    }
+    snake.keyPress(e);
 };
 
 clearScreen = function () {
@@ -216,11 +223,6 @@ var gameSpeed = INITIAL_GAME_SPEED;
 
 canvas.width = CELL_SIZE * GRID_WIDTH;
 canvas.height = CELL_SIZE * GRID_HEIGHT;
-
-var prevDirX = 0;
-var prevDirY = 0;
-var dirX = 0;
-var dirY = 0;
 
 var food = new Blinker(undefined, undefined);
 food.start();

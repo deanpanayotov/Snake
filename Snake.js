@@ -1,13 +1,13 @@
 /**
- * Created by dpanayotov on 15/01/14.
+ * Created by dpanayotov on 24/01/14.
  */
 
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext("2d");
 var CELL_SIZE = 10;
 var CELL_PADDING = 1;
-var GRID_WIDTH = 24;
-var GRID_HEIGHT = 24;
+var GRID_WIDTH = 20;
+var GRID_HEIGHT = 20;
 
 var COLOR_BGR = "#334467";
 var COLOR_FRGR = "#DAEF6B";
@@ -25,9 +25,9 @@ var KEY_d = 100;
 var KEY_D = 68;
 var KEY_RIGHT = 39;
 
-var INITIAL_GAME_SPEED = 200;
+var INITIAL_GAME_SPEED = 180;
 var GAME_SPEED_STEP = 10;
-var MIN_GAME_SPEED = 50;
+var MIN_GAME_SPEED = 10;
 
 var gameSpeed = INITIAL_GAME_SPEED;
 
@@ -72,7 +72,8 @@ function Snake(segments) {
                 this.grow = false;
                 changeGameSpeed(Math.max(MIN_GAME_SPEED, gameSpeed - GAME_SPEED_STEP));
             } else {
-                drawSquare(this.segments.pop(), COLOR_BGR);
+                if (dirX != 0 || dirY != 0)
+                    drawSquare(this.segments.pop(), COLOR_BGR);
             }
             this.segments.unshift(head);
             drawSquare(this.segments[0], COLOR_FRGR);

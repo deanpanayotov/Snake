@@ -26,7 +26,7 @@ var KEY_D = 68;
 var KEY_RIGHT = 39;
 
 var INITIAL_GAME_SPEED = 200;
-var GAME_SPEED_STEP = 200;
+var GAME_SPEED_STEP = 10;
 var MIN_GAME_SPEED = 50;
 
 var gameSpeed = INITIAL_GAME_SPEED;
@@ -70,11 +70,7 @@ function Snake(segments) {
         this.bite(head);
         if (this.grow) {
             this.grow = false;
-            clearInterval(game);
-            gameSpeed = Math.max(MIN_GAME_SPEED, gameSpeed - GAME_SPEED_STEP);
-            game = setInterval(function () {
-                snake.update()
-            }, gameSpeed);
+            changeGameSpeed(Math.max(MIN_GAME_SPEED, gameSpeed - GAME_SPEED_STEP));
         } else {
             drawSquare(this.segments.pop(), COLOR_BGR);
         }
@@ -111,6 +107,14 @@ dropFood = function () {
     } while (foodTouchesSnake());
 };
 
+changeGameSpeed = function(speed){
+    clearInterval(game);
+    gameSpeed = speed;
+    game = setInterval(function () {
+        snake.update()
+    }, gameSpeed);
+}
+
 drawFood = function () {
     if (foodColor === COLOR_BGR)
         foodColor = COLOR_FRGR;
@@ -131,6 +135,7 @@ foodTouchesSnake = function () {
 gameOver = function () {
     clearScreen();
     snake = new Snake();
+    changeGameSpeed(INITIAL_GAME_SPEED);
 };
 
 drawSquare = function (segment, color) {

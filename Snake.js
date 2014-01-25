@@ -2,7 +2,45 @@
  * Created by dpanayotov on 24/01/14.
  */
 
-function Snake(segments) {
+function fiftyfifty() {
+    return (Math.round(Math.random()) === 0);
+}
+
+function Snake() {
+
+    this.pickDirection = function () {
+        if (fiftyfifty()) {
+            if (fiftyfifty()) {
+                this.dirX = 1;
+            } else {
+                this.dirX = -1;
+            }
+            this.dirY = 0;
+        } else {
+            this.dirX = 0;
+            if (fiftyfifty()) {
+                this.dirY = 1;
+            } else {
+                this.dirY = -1;
+            }
+        }
+        this.prevDirX = this.dirX;
+        this.prevDirY = this.dirY;
+    };
+
+    this.initSegments = function(){
+        //Pick a starting point
+        var x = Math.floor(Math.random() * GRID_WIDTH);
+        var y = Math.floor(Math.random() * GRID_HEIGHT);
+
+        //
+        this.segments = [];
+        for (var i = 0; i < INITIAL_SEGMENT_COUNT; i++) {
+            this.segments.push(new Segment((GRID_WIDTH + x) % GRID_WIDTH, (GRID_HEIGHT + y) % GRID_HEIGHT));
+            x -= this.dirX;
+            y -= this.dirY;
+        }
+    };
 
     this.draw = function () {
         this.segments.forEach(function (segment) {
@@ -78,22 +116,10 @@ function Snake(segments) {
         }
     };
 
-    this.prevDirX = 0;
-    this.prevDirY = 0;
-    this.dirX = 0;
-    this.dirY = 0;
+    var INITIAL_SEGMENT_COUNT = 4;
     this.grow = false;
-    this.segments = segments;
-    if (segments === undefined) {
-        this.segments = [
-            new Segment(5, 0),
-            new Segment(4, 0),
-            new Segment(3, 0),
-            new Segment(2, 0),
-            new Segment(1, 0),
-            new Segment(0, 0)
-        ];
-    }
+    this.pickDirection();
+    this.initSegments();
     this.draw();
 }
 
@@ -106,18 +132,14 @@ function Blinker(segment, color) {
     this.blinkTime = DEFAULT_BLINK_TIME;
     this.color = color ? color : COLOR_BGR;
     this.segment = segment;
-    console.log(this.segment);
 
     this.blink = function () {
-        console.log("blink");
         if (this.color === COLOR_BGR)
             this.color = COLOR_FRGR;
         else
             this.color = COLOR_BGR;
-        console.log(this);
         if (this.segment) {
             drawSquare(this.segment, this.color);
-            console.log("segment");
         }
     };
     this.start = function () {
@@ -139,7 +161,6 @@ dropFood = function () {
     do {
         //floor not round because round can return GRID_WIDTH/GRID_HEIGHT which would be outside of canvas!
         food.segment = new Segment(Math.floor(Math.random() * GRID_WIDTH), Math.floor(Math.random() * GRID_HEIGHT));
-        console.log("dorpFood " + food.segment.x);
     } while (foodTouchesSnake());
 };
 
@@ -168,6 +189,7 @@ foodTouchesSnake = function () {
     return false;
 };
 gameOver = function () {
+    console.log("gameOVer");
     clearScreen();
     snake = new Snake();
     changeGameSpeed(INITIAL_GAME_SPEED);

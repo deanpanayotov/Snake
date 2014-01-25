@@ -2,60 +2,7 @@
  * Created by dpanayotov on 24/01/14.
  */
 
-var canvas = document.getElementById('canvas');
-var context = canvas.getContext("2d");
-var CELL_SIZE = 10;
-var CELL_PADDING = 1;
-var GRID_WIDTH = 20;
-var GRID_HEIGHT = 20;
-
-var COLOR_BGR = "#334467";
-var COLOR_FRGR = "#DAEF6B";
-
-var KEY_w = 119;
-var KEY_W = 87;
-var KEY_UP = 38;
-var KEY_a = 97;
-var KEY_A = 65;
-var KEY_LEFT = 37;
-var KEY_s = 115;
-var KEY_S = 83;
-var KEY_DOWN = 40;
-var KEY_d = 100;
-var KEY_D = 68;
-var KEY_RIGHT = 39;
-
-var INITIAL_GAME_SPEED = 180;
-var GAME_SPEED_STEP = 10;
-var MIN_GAME_SPEED = 10;
-
-var gameSpeed = INITIAL_GAME_SPEED;
-
-canvas.width = CELL_SIZE * GRID_WIDTH;
-canvas.height = CELL_SIZE * GRID_HEIGHT;
-
-var prevDirX = 0;
-var prevDirY = 0;
-var dirX = 0;
-var dirY = 0;
-
-var food;
-var foodColor = COLOR_BGR;
-
-var game;
-
 function Snake(segments) {
-    this.segments = segments;
-    if (segments === undefined) {
-        this.segments = [
-            new Segment(5, 0),
-            new Segment(4, 0),
-            new Segment(3, 0),
-            new Segment(2, 0),
-            new Segment(1, 0),
-            new Segment(0, 0)
-        ];
-    }
 
     this.grow = false;
 
@@ -72,8 +19,7 @@ function Snake(segments) {
                 this.grow = false;
                 changeGameSpeed(Math.max(MIN_GAME_SPEED, gameSpeed - GAME_SPEED_STEP));
             } else {
-                if (dirX != 0 || dirY != 0)
-                    drawSquare(this.segments.pop(), COLOR_BGR);
+                drawSquare(this.segments.pop(), COLOR_BGR);
             }
             this.segments.unshift(head);
             drawSquare(this.segments[0], COLOR_FRGR);
@@ -96,6 +42,17 @@ function Snake(segments) {
         return 0;
     };
 
+    this.segments = segments;
+    if (segments === undefined) {
+        this.segments = [
+            new Segment(5, 0),
+            new Segment(4, 0),
+            new Segment(3, 0),
+            new Segment(2, 0),
+            new Segment(1, 0),
+            new Segment(0, 0)
+        ];
+    }
     this.draw();
 }
 
@@ -103,6 +60,8 @@ function Segment(x, y) {
     this.x = x;
     this.y = y;
 }
+
+/////////////////////////////////////////////////////
 
 dropFood = function () {
     do {
@@ -192,6 +151,50 @@ clearScreen = function () {
     context.fillRect(0, 0, canvas.width, canvas.height);
 };
 
+/////////////////////////////////////////////////////
+
+
+var canvas = document.getElementById('canvas');
+var context = canvas.getContext("2d");
+var CELL_SIZE = 10;
+var CELL_PADDING = 1;
+var GRID_WIDTH = 20;
+var GRID_HEIGHT = 20;
+
+var COLOR_BGR = "#334467";
+var COLOR_FRGR = "#DAEF6B";
+
+var KEY_w = 119;
+var KEY_W = 87;
+var KEY_UP = 38;
+var KEY_a = 97;
+var KEY_A = 65;
+var KEY_LEFT = 37;
+var KEY_s = 115;
+var KEY_S = 83;
+var KEY_DOWN = 40;
+var KEY_d = 100;
+var KEY_D = 68;
+var KEY_RIGHT = 39;
+
+var INITIAL_GAME_SPEED = 180;
+var GAME_SPEED_STEP = 10;
+var MIN_GAME_SPEED = 10;
+
+var gameSpeed = INITIAL_GAME_SPEED;
+
+canvas.width = CELL_SIZE * GRID_WIDTH;
+canvas.height = CELL_SIZE * GRID_HEIGHT;
+
+var prevDirX = 0;
+var prevDirY = 0;
+var dirX = 0;
+var dirY = 0;
+
+var food;
+var foodColor = COLOR_BGR;
+
+var game;
 
 clearScreen();
 var snake = new Snake();

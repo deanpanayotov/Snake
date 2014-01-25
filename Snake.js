@@ -6,8 +6,8 @@ var canvas = document.getElementById('canvas');
 var context = canvas.getContext("2d");
 var CELL_SIZE = 10;
 var CELL_PADDING = 1;
-var GRID_WIDTH = 20;
-var GRID_HEIGHT = 10;
+var GRID_WIDTH = 24;
+var GRID_HEIGHT = 24;
 
 var COLOR_BGR = "#334467";
 var COLOR_FRGR = "#DAEF6B";
@@ -34,9 +34,9 @@ var gameSpeed = INITIAL_GAME_SPEED;
 canvas.width = CELL_SIZE * GRID_WIDTH;
 canvas.height = CELL_SIZE * GRID_HEIGHT;
 
-var prevDirX = 1;
+var prevDirX = 0;
 var prevDirY = 0;
-var dirX = 1;
+var dirX = 0;
 var dirY = 0;
 
 var food;
@@ -67,29 +67,32 @@ function Snake(segments) {
 
     this.update = function () {
         var head = new Segment((GRID_WIDTH + this.segments[0].x + dirX ) % GRID_WIDTH, (GRID_HEIGHT + this.segments[0].y + dirY) % GRID_HEIGHT);
-        this.bite(head);
-        if (this.grow) {
-            this.grow = false;
-            changeGameSpeed(Math.max(MIN_GAME_SPEED, gameSpeed - GAME_SPEED_STEP));
-        } else {
-            drawSquare(this.segments.pop(), COLOR_BGR);
+        if (this.bite(head) == 0) {
+            if (this.grow) {
+                this.grow = false;
+                changeGameSpeed(Math.max(MIN_GAME_SPEED, gameSpeed - GAME_SPEED_STEP));
+            } else {
+                drawSquare(this.segments.pop(), COLOR_BGR);
+            }
+            this.segments.unshift(head);
+            drawSquare(this.segments[0], COLOR_FRGR);
+            prevDirX = dirX;
+            prevDirY = dirY;
         }
-        this.segments.unshift(head);
-        drawSquare(this.segments[0], COLOR_FRGR);
-        prevDirX = dirX;
-        prevDirY = dirY;
     };
 
     this.bite = function (head) {
         for (var i = 1; i < this.segments.length - 1; i++) { // skipping head and tail
             if (this.segments[i].x === head.x && this.segments[i].y === head.y) {
                 gameOver();
+                return 1;
             }
         }
         if (food.x === head.x && food.y === head.y) {
             this.grow = true;
             dropFood();
         }
+        return 0;
     };
 
     this.draw();
@@ -107,7 +110,7 @@ dropFood = function () {
     } while (foodTouchesSnake());
 };
 
-changeGameSpeed = function(speed){
+changeGameSpeed = function (speed) {
     clearInterval(game);
     gameSpeed = speed;
     game = setInterval(function () {
@@ -126,7 +129,6 @@ drawFood = function () {
 foodTouchesSnake = function () {
     for (var i = 0; i < snake.segments.length; i++) {
         if (snake.segments[i].x === food.x && snake.segments[i].y === food.y) {
-            console.log("touch");
             return true;
         }
     }
@@ -136,6 +138,8 @@ gameOver = function () {
     clearScreen();
     snake = new Snake();
     changeGameSpeed(INITIAL_GAME_SPEED);
+    dirX = 0;
+    dirY = 0;
 };
 
 drawSquare = function (segment, color) {

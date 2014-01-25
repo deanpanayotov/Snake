@@ -1,0 +1,15 @@
+body {
+    font-family: 'Press Start 2P', cursive;
+    text-align:center;
+    vertical-align: middle;
+    background-color: #334467;
+}
+#canvas {
+    position: absolute;
+    border-top: 2px dashed #DAEF6B;
+    border-bottom: 2px dashed #DAEF6B;
+}
+
+#game_over {
+    position: absolute;
+}

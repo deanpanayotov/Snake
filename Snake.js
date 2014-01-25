@@ -35,7 +35,7 @@ function Snake(segments) {
                 return 1;
             }
         }
-        if (food.x === head.x && food.y === head.y) {
+        if (food.segment.x === head.x && food.segment.y === head.y) {
             this.grow = true;
             dropFood();
         }
@@ -61,12 +61,42 @@ function Segment(x, y) {
     this.y = y;
 }
 
+function Blinker(segment, color) {
+    this.blinkTime = DEFAULT_BLINK_TIME;
+    this.color = color ? color : COLOR_BGR;
+    this.segment = segment;
+    console.log(this.segment);
+
+    this.blink = function () {
+        console.log("blink");
+        if (this.color === COLOR_BGR)
+            this.color = COLOR_FRGR;
+        else
+            this.color = COLOR_BGR;
+        console.log(this);
+        if (this.segment) {
+            drawSquare(this.segment, this.color);
+            console.log("segment");
+        }
+    };
+    this.start = function () {
+        var that = this;
+        this.timer = setInterval(function(){that.blink()},
+            this.blinkTime);
+    };
+
+    this.stop = function () {
+        clearInterval(this.timer);
+    };
+}
+
 /////////////////////////////////////////////////////
 
 dropFood = function () {
     do {
         //floor not round because round can return GRID_WIDTH/GRID_HEIGHT which would be outside of canvas!
-        food = new Segment(Math.floor(Math.random() * GRID_WIDTH), Math.floor(Math.random() * GRID_HEIGHT));
+        food.segment = new Segment(Math.floor(Math.random() * GRID_WIDTH), Math.floor(Math.random() * GRID_HEIGHT));
+        console.log("dorpFood "+food.segment.x);
     } while (foodTouchesSnake());
 };
 
@@ -76,19 +106,19 @@ changeGameSpeed = function (speed) {
     game = setInterval(function () {
         snake.update()
     }, gameSpeed);
-}
-
-drawFood = function () {
-    if (foodColor === COLOR_BGR)
-        foodColor = COLOR_FRGR;
-    else
-        foodColor = COLOR_BGR;
-    drawSquare(food, foodColor);
 };
+
+//drawFood = function () {
+//    if (foodColor === COLOR_BGR)
+//        foodColor = COLOR_FRGR;
+//    else
+//        foodColor = COLOR_BGR;
+//    drawSquare(food, foodColor);
+//};
 
 foodTouchesSnake = function () {
     for (var i = 0; i < snake.segments.length; i++) {
-        if (snake.segments[i].x === food.x && snake.segments[i].y === food.y) {
+        if (snake.segments[i].x === food.segment.x && snake.segments[i].y === food.segment.y) {
             return true;
         }
     }
@@ -180,6 +210,7 @@ var KEY_RIGHT = 39;
 var INITIAL_GAME_SPEED = 180;
 var GAME_SPEED_STEP = 10;
 var MIN_GAME_SPEED = 10;
+var DEFAULT_BLINK_TIME = 100;
 
 var gameSpeed = INITIAL_GAME_SPEED;
 
@@ -191,9 +222,8 @@ var prevDirY = 0;
 var dirX = 0;
 var dirY = 0;
 
-var food;
-var foodColor = COLOR_BGR;
-
+var food = new Blinker(undefined, undefined);
+food.start();
 var game;
 
 clearScreen();
@@ -202,6 +232,3 @@ dropFood();
 game = setInterval(function () {
     snake.update()
 }, gameSpeed);
-setInterval(function () {
-    drawFood();
-}, 100);

@@ -15,7 +15,7 @@ function Snake(segments) {
         if (this.bite(head) == 0) {
             if (this.grow) {
                 this.grow = false;
-                changeGameSpeed(Math.max(MIN_GAME_SPEED, gameSpeed - GAME_SPEED_STEP));
+                changeGameSpeed(Math.max(MIN_GAME_SPEED, Math.round(gameSpeed - GAME_SPEED_STEP * gameSpeed)));
             } else {
                 drawSquare(this.segments.pop(), COLOR_BGR);
             }
@@ -214,9 +214,9 @@ var KEY_d = 100;
 var KEY_D = 68;
 var KEY_RIGHT = 39;
 
-var INITIAL_GAME_SPEED = 180;
-var GAME_SPEED_STEP = 10;
-var MIN_GAME_SPEED = 10;
+var INITIAL_GAME_SPEED = 140;
+var GAME_SPEED_STEP = 0.05;
+var MIN_GAME_SPEED = 20;
 var DEFAULT_BLINK_TIME = 100;
 
 var gameSpeed = INITIAL_GAME_SPEED;

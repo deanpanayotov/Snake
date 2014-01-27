@@ -54,6 +54,7 @@ function Snake() {
             if (this.grow) {
                 this.grow = false;
                 changeGameSpeed(Math.max(MIN_GAME_SPEED, Math.round(gameSpeed - GAME_SPEED_STEP * gameSpeed)));
+                score.innerHTML = ++gameScore;
             } else {
                 drawSquare(this.segments.pop(), COLOR_BGR);
             }
@@ -155,6 +156,66 @@ function Blinker(segment, color) {
     };
 }
 
+///// STOPWATCH //////////////////////////////////////////////
+
+function Stopwatch(text) {
+
+    this.text = text;
+
+    this.startAt = 0;
+    this.lapTime = 0;
+
+    var now = function () {
+        return (new Date()).getTime();
+    };
+
+    this.start = function () {
+        this.startAt = this.startAt ? this.startAt : now();
+        var that = this;
+        this.timer = setInterval(function () {
+            that.update()
+        }, 100);
+    };
+
+    this.stop = function () {
+        this.lapTime = this.startAt ? this.lapTime + now() - this.startAt : this.lapTime;
+        this.startAt = 0;
+        clearInterval(this.timer);
+
+    };
+
+    this.reset = function () {
+        this.lapTime = this.startAt = 0;
+    };
+
+    this.time = function () {
+        return this.lapTime + (this.startAt ? now() - this.startAt : 0);
+    };
+
+    var pad = function (num, size) {
+        var s = "0000" + num;
+        return s.substr(s.length - size);
+    };
+
+    this.formattedTime = function () {
+        var m, s, ms;
+        var newTime = this.time();
+
+        newTime = newTime % (60 * 60 * 1000);
+        m = Math.floor(newTime / (60 * 1000));
+        newTime = newTime % (60 * 1000);
+        s = Math.floor(newTime / 1000);
+        ms = newTime % 1000;
+
+        return m + ':' + pad(s, 2) + '.' + pad(ms, 2);
+    };
+
+    this.update = function () {
+        this.text.innerHTML = this.formattedTime();
+    };
+}
+
+
 /////////////////////////////////////////////////////
 
 dropFood = function () {
@@ -183,17 +244,22 @@ foodTouchesSnake = function () {
     return false;
 };
 gameOver = function () {
+    stopWatch.stop();
     changeGameSpeed(undefined);
     game_over.style.visibility = 'visible';
 };
 
 newGame = function () {
     clearScreen();
+    score.innerHTML = gameScore = 0;
+    gameTime = 0;
     snake = new Snake();
     dropFood();
     changeGameSpeed(INITIAL_GAME_SPEED);
     game_over.style.visibility = 'hidden';
-}
+    stopWatch.reset();
+    stopWatch.start();
+};
 
 drawSquare = function (segment, color) {
     context.fillStyle = color;
@@ -219,6 +285,7 @@ var canvas = document.getElementById('canvas');
 var context = canvas.getContext("2d");
 var game_over = document.getElementById('game_over');
 var score = document.getElementById('score');
+var time = document.getElementById('time');
 var CELL_SIZE = 10;
 var CELL_PADDING = 1;
 var GRID_WIDTH = 20;
@@ -250,6 +317,9 @@ var gameSpeed = INITIAL_GAME_SPEED;
 canvas.width = CELL_SIZE * GRID_WIDTH;
 canvas.height = CELL_SIZE * GRID_HEIGHT;
 
+var snake;
+var gameScore;
+var stopWatch = new Stopwatch(time);
 var food = new Blinker(undefined, undefined);
 food.start();
 var game;

@@ -28,7 +28,7 @@ function Snake() {
         this.prevDirY = this.dirY;
     };
 
-    this.initSegments = function(){
+    this.initSegments = function () {
         //Pick a starting point
         var x = Math.floor(Math.random() * GRID_WIDTH);
         var y = Math.floor(Math.random() * GRID_HEIGHT);
@@ -167,7 +167,7 @@ dropFood = function () {
 changeGameSpeed = function (speed) {
     clearInterval(game);
     gameSpeed = speed;
-    if(speed!=undefined){
+    if (speed != undefined) {
         game = setInterval(function () {
             snake.update()
         }, gameSpeed);
@@ -183,15 +183,16 @@ foodTouchesSnake = function () {
     return false;
 };
 gameOver = function () {
-    console.log("gameOVer");
-    newGame();
+    changeGameSpeed(undefined);
+    game_over.style.visibility = 'visible';
 };
 
-newGame = function(){
+newGame = function () {
     clearScreen();
     snake = new Snake();
     dropFood();
     changeGameSpeed(INITIAL_GAME_SPEED);
+    game_over.style.visibility = 'hidden';
 }
 
 drawSquare = function (segment, color) {
@@ -199,8 +200,11 @@ drawSquare = function (segment, color) {
     context.fillRect(segment.x * CELL_SIZE + CELL_PADDING, segment.y * CELL_SIZE + CELL_PADDING, CELL_SIZE - CELL_PADDING, CELL_SIZE - CELL_PADDING);
 };
 
-
 keyPress = function (e) {
+    var key = e.keyCode ? e.keyCode : e.charCode;
+    if (key === 32 && gameSpeed === undefined) {
+        newGame();
+    }
     snake.keyPress(e);
 };
 
@@ -210,7 +214,6 @@ clearScreen = function () {
 };
 
 /////////////////////////////////////////////////////
-
 
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext("2d");
@@ -246,8 +249,6 @@ var gameSpeed = INITIAL_GAME_SPEED;
 
 canvas.width = CELL_SIZE * GRID_WIDTH;
 canvas.height = CELL_SIZE * GRID_HEIGHT;
-//wrapper.width = canvas.width;
-//wrapper.height = canvas.height;
 
 var food = new Blinker(undefined, undefined);
 food.start();

@@ -167,18 +167,12 @@ dropFood = function () {
 changeGameSpeed = function (speed) {
     clearInterval(game);
     gameSpeed = speed;
-    game = setInterval(function () {
-        snake.update()
-    }, gameSpeed);
+    if(speed!=undefined){
+        game = setInterval(function () {
+            snake.update()
+        }, gameSpeed);
+    }
 };
-
-//drawFood = function () {
-//    if (foodColor === COLOR_BGR)
-//        foodColor = COLOR_FRGR;
-//    else
-//        foodColor = COLOR_BGR;
-//    drawSquare(food, foodColor);
-//};
 
 foodTouchesSnake = function () {
     for (var i = 0; i < snake.segments.length; i++) {
@@ -190,10 +184,15 @@ foodTouchesSnake = function () {
 };
 gameOver = function () {
     console.log("gameOVer");
+    newGame();
+};
+
+newGame = function(){
     clearScreen();
     snake = new Snake();
+    dropFood();
     changeGameSpeed(INITIAL_GAME_SPEED);
-};
+}
 
 drawSquare = function (segment, color) {
     context.fillStyle = color;
@@ -215,6 +214,8 @@ clearScreen = function () {
 
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext("2d");
+var game_over = document.getElementById('game_over');
+var score = document.getElementById('score');
 var CELL_SIZE = 10;
 var CELL_PADDING = 1;
 var GRID_WIDTH = 20;
@@ -245,14 +246,11 @@ var gameSpeed = INITIAL_GAME_SPEED;
 
 canvas.width = CELL_SIZE * GRID_WIDTH;
 canvas.height = CELL_SIZE * GRID_HEIGHT;
+//wrapper.width = canvas.width;
+//wrapper.height = canvas.height;
 
 var food = new Blinker(undefined, undefined);
 food.start();
 var game;
 
-clearScreen();
-var snake = new Snake();
-dropFood();
-game = setInterval(function () {
-    snake.update()
-}, gameSpeed);
+newGame();

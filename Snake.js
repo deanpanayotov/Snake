@@ -252,7 +252,6 @@ gameOver = function () {
 newGame = function () {
     clearScreen();
     score.innerHTML = gameScore = 0;
-    gameTime = 0;
     snake = new Snake();
     dropFood();
     changeGameSpeed(INITIAL_GAME_SPEED);
@@ -279,13 +278,94 @@ clearScreen = function () {
     context.fillRect(0, 0, canvas.width, canvas.height);
 };
 
+/** TODO:this probably doesn't work in nested divs */
+function getCursorPosition(event) {
+    var mouseX;
+    var mouseY;
+    if (event.pageX || event.pageY) {
+        mouseX = event.pageX;
+        mouseY = event.pageY;
+    } else {
+        mouseX = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+        mouseY = event.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+    }
+    mouseX -= controls.offsetLeft;
+    mouseY -= controls.offsetTop;
+    return new Segment(mouseX, mouseY);
+}
+
+click = function (event) {
+    event.preventDefault();
+    var point = getCursorPosition(event);
+    if (point.x >= point.y) {
+        if (controls.width - point.x >= point.y) {
+            console.log("up");
+            if (snake.prevDirY != 1) {
+                snake.dirX = 0;
+                snake.dirY = -1;
+            }
+        } else {
+            console.log("right");
+            if (snake.prevDirX != -1) {
+                snake.dirX = 1;
+                snake.dirY = 0;
+            }
+        }
+    } else {
+        if (point.x >= controls.height - point.y) {
+            console.log("down");
+            if (snake.prevDirY != -1) {
+                snake.dirX = 0;
+                snake.dirY = 1;
+            }
+        } else {
+            console.log("left");
+            if (snake.prevDirX != 1) {
+                snake.dirX = -1;
+                snake.dirY = 0;
+            }
+        }
+    }
+};
+
+drawControls = function(){
+    context2.fillStyle = COLOR_BGR;
+    context2.fillRect(0, 0, controls.width, controls.height);
+    context2.strokeStyle = COLOR_FRGR;
+    context2.lineWidth = 2;
+    context2.beginPath();
+    context2.moveTo(0, 0);
+    context2.lineTo(controls.width/2.2, controls.height/2.2);
+    context2.stroke();
+
+    context2.beginPath();
+    context2.moveTo(controls.width/1.8, controls.height/1.8);
+    context2.lineTo(controls.width, controls.height);
+    context2.stroke();
+
+    context2.beginPath();
+    context2.moveTo(0, controls.height);
+    context2.lineTo(controls.width/2.2, controls.height/1.8);
+    context2.stroke();
+
+    context2.beginPath();
+    context2.moveTo(controls.width, 0);
+    context2.lineTo(controls.width/1.8, controls.height/2.2);
+    context2.stroke();
+};
+
 /////////////////////////////////////////////////////
 
 var canvas = document.getElementById('canvas');
+canvas.onselectstart = function () { return false; } //make canvas unselectable
 var context = canvas.getContext("2d");
 var game_over = document.getElementById('game_over');
+game_over.addEventListener('click', newGame, false);
 var score = document.getElementById('score');
 var time = document.getElementById('time');
+var controls = document.getElementById('controls');
+var context2 = controls.getContext("2d");
+controls.addEventListener('click', click, false);
 var CELL_SIZE = 10;
 var CELL_PADDING = 1;
 var GRID_WIDTH = 20;
@@ -316,7 +396,9 @@ var gameSpeed = INITIAL_GAME_SPEED;
 
 canvas.width = CELL_SIZE * GRID_WIDTH;
 canvas.height = CELL_SIZE * GRID_HEIGHT;
-
+controls.width = canvas.width / 2;
+controls.height = canvas.height / 2;
+drawControls();
 var snake;
 var gameScore;
 var stopWatch = new Stopwatch(time);

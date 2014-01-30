@@ -158,63 +158,62 @@ function Blinker(segment, color) {
 
 ///// STOPWATCH //////////////////////////////////////////////
 
-function Stopwatch(text) {
+function Stopwatch(text, updateInterval) {
 
     this.text = text;
-
+    this.updateInterval = updateInterval ? updateInterval : 100;
     this.startAt = 0;
     this.lapTime = 0;
 
-    var now = function () {
+//returns current time
+    this.now = function () {
         return (new Date()).getTime();
     };
 
     this.start = function () {
-        this.startAt = this.startAt ? this.startAt : now();
+        this.startAt = this.startAt ? this.startAt : this.now();
         var that = this;
-        this.timer = setInterval(function () {
+        this.timer = this.timer ? this.timer : setInterval(function () {
             that.update()
-        }, 100);
+        }, this.updateInterval);
     };
 
     this.stop = function () {
-        this.lapTime = this.startAt ? this.lapTime + now() - this.startAt : this.lapTime;
-        this.startAt = 0;
+        this.update();
+        this.lapTime = this.startAt ? this.lapTime + this.now() - this.startAt : this.lapTime;
         clearInterval(this.timer);
-
+        this.startAt = this.timer = 0;
     };
 
     this.reset = function () {
-        this.lapTime = this.startAt = 0;
+        this.lapTime = 0;
+        this.startAt = this.startAt ? this.now() : 0;
+        this.update();
     };
 
-    this.time = function () {
-        return this.lapTime + (this.startAt ? now() - this.startAt : 0);
-    };
-
-    var pad = function (num, size) {
-        var s = "0000" + num;
+//adds zero padding to numbers
+    this.pad = function (num, size) {
+        var s = "00000" + num;
         return s.substr(s.length - size);
     };
 
     this.formattedTime = function () {
         var m, s, ms;
-        var newTime = this.time();
+        var time = this.lapTime + (this.startAt ? this.now() - this.startAt : 0);
 
-        newTime = newTime % (60 * 60 * 1000);
-        m = Math.floor(newTime / (60 * 1000));
-        newTime = newTime % (60 * 1000);
-        s = Math.floor(newTime / 1000);
-        ms = newTime % 1000;
+        time = time % (60 * 60 * 1000);
+        m = Math.floor(time / (60 * 1000));
+        time = time % (60 * 1000);
+        s = Math.floor(time / 1000);
+        ms = time % 1000;
 
-        return m + ':' + pad(s, 2) + '.' + pad(ms, 2);
+        return m + ':' + this.pad(s, 2) + '.' + this.pad(ms, 3);
     };
 
     this.update = function () {
         this.text.innerHTML = this.formattedTime();
     };
 }
-
 
 /////////////////////////////////////////////////////
 

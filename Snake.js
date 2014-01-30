@@ -79,7 +79,7 @@ function Snake() {
         return 0;
     };
 
-    this.keyPress = function (e) {
+    this.keyDown = function (e) {
         var key = e.keyCode ? e.keyCode : e.charCode;
         switch (key) {
             case KEY_w:
@@ -265,12 +265,12 @@ drawSquare = function (segment, color) {
     context.fillRect(segment.x * CELL_SIZE + CELL_PADDING, segment.y * CELL_SIZE + CELL_PADDING, CELL_SIZE - CELL_PADDING, CELL_SIZE - CELL_PADDING);
 };
 
-keyPress = function (e) {
+keyDown = function (e) {
     var key = e.keyCode ? e.keyCode : e.charCode;
     if (key === 32 && gameSpeed === undefined) {
         newGame();
     }
-    snake.keyPress(e);
+    snake.keyDown(e);
 };
 
 clearScreen = function () {

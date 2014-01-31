@@ -50,13 +50,14 @@ function Snake() {
 
     this.update = function () {
         var head = new Segment((GRID_WIDTH + this.segments[0].x + this.dirX ) % GRID_WIDTH, (GRID_HEIGHT + this.segments[0].y + this.dirY) % GRID_HEIGHT);
+        this.warpHead(head);
         if (this.bite(head) == 0) {
             if (this.grow) {
                 this.grow = false;
                 changeGameSpeed(Math.max(MIN_GAME_SPEED, Math.round(gameSpeed - GAME_SPEED_STEP * gameSpeed)));
                 score.innerHTML = ++gameScore;
             } else {
-                drawSquare(this.segments.pop(), COLOR_BGR);
+                drawSquare(this.segments.pop(), COLOR_BGR2);
             }
             this.segments.unshift(head);
             drawSquare(this.segments[0], COLOR_FRGR);
@@ -114,6 +115,33 @@ function Snake() {
                     this.dirY = 0;
                 }
                 break;
+        }
+    };
+
+    this.warpHead = function(segment){
+        var border = xBorders[segment.y];
+        if(segment.x<border){
+            if(this.dirX!=0){
+                segment.x = GRID_WIDTH-segment.x-2;
+            }else{
+                if(segment.y<GRID_HEIGHT/2){
+                    segment.y = GRID_HEIGHT-segment.y-2;
+                }else{
+                    segment.y = GRID_HEIGHT-segment.y;
+                }
+            }
+            this.warpHead(segment);
+        }else if(segment.x>=GRID_WIDTH-border){
+            if(this.dirX!=0){
+                segment.x = GRID_WIDTH-segment.x;
+            }else{
+                if(segment.y<GRID_HEIGHT/2){
+                    segment.y = GRID_HEIGHT-segment.y-2;
+                }else{
+                    segment.y = GRID_HEIGHT-segment.y;
+                }
+            }
+            this.warpHead(segment);
         }
     };
 
@@ -289,14 +317,12 @@ calculateBorders = function () {
     var adjacent;
     for (var i = 0; i < GRID_HEIGHT/2; i++) {
         adjacent = radius - (i + 0.2);
-        console.log(adjacent);
         xBorders[i] =  Math.round((radius -Math.sqrt((radius * radius - adjacent * adjacent)))*coef);
         xBorders[GRID_HEIGHT- (i + 1)] = xBorders[i];
-        console.log(i + ": " + xBorders[i]);
     }
 }
 
-/////////////////////////////////////////////////////test
+/////////////////////////////////////////////////////
 
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext("2d");

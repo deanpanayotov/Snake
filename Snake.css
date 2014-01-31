@@ -11,11 +11,6 @@ body {
     margin: 0 auto;
 }
 
-#canvas {
-    border-top: 2px dashed;
-    border-bottom: 2px dashed;
-}
-
 #game_over {
     padding: 0.25%;
     margin: 0 auto;

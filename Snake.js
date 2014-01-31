@@ -276,9 +276,28 @@ keyDown = function (e) {
 clearScreen = function () {
     context.fillStyle = COLOR_BGR;
     context.fillRect(0, 0, canvas.width, canvas.height);
+    for(i=0;i<GRID_HEIGHT;i++){
+        for(j=xBorders[i];j<GRID_WIDTH-xBorders[i];j++){
+            drawSquare(new Segment(j,i),COLOR_BGR2);
+        }
+    }
 };
 
+calculateBorders = function () {
+    var coef = GRID_WIDTH/GRID_HEIGHT;
+    var radius = GRID_HEIGHT / 2;
+    var adjacent;
+    for (var i = 0; i < GRID_HEIGHT/2; i++) {
+        adjacent = radius - (i + 0.2);
+        console.log(adjacent);
+        xBorders[i] =  Math.round((radius -Math.sqrt((radius * radius - adjacent * adjacent)))*coef);
+        xBorders[GRID_HEIGHT- (i + 1)] = xBorders[i];
+        console.log(i + ": " + xBorders[i]);
+    }
+}
+
 /////////////////////////////////////////////////////
+
 
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext("2d");
@@ -287,11 +306,16 @@ var score = document.getElementById('score');
 var time = document.getElementById('time');
 var CELL_SIZE = 10;
 var CELL_PADDING = 1;
-var GRID_WIDTH = 20;
-var GRID_HEIGHT = 20;
+var GRID_WIDTH = 25;
+var GRID_HEIGHT = 25;
+
+var xBorders = [];
+calculateBorders();
 
 var COLOR_BGR = "#334467";
+var COLOR_BGR2 = "#243048";
 var COLOR_FRGR = "#DAEF6B";
+
 
 var KEY_w = 119;
 var KEY_W = 87;

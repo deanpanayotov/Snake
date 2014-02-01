@@ -118,30 +118,10 @@ function Snake() {
         }
     };
 
-    this.warpHead = function(segment){
-        var border = xBorders[segment.y];
-        if(segment.x<border){
-            if(this.dirX!=0){
-                segment.x = GRID_WIDTH-segment.x-2;
-            }else{
-                if(segment.y<GRID_HEIGHT/2){
-                    segment.y = GRID_HEIGHT-segment.y-2;
-                }else{
-                    segment.y = GRID_HEIGHT-segment.y;
-                }
-            }
-            this.warpHead(segment);
-        }else if(segment.x>=GRID_WIDTH-border){
-            if(this.dirX!=0){
-                segment.x = GRID_WIDTH-segment.x;
-            }else{
-                if(segment.y<GRID_HEIGHT/2){
-                    segment.y = GRID_HEIGHT-segment.y-2;
-                }else{
-                    segment.y = GRID_HEIGHT-segment.y;
-                }
-            }
-            this.warpHead(segment);
+    this.warpHead = function (segment) {
+        if (segment.x < xBorders[segment.y] || segment.x >= GRID_WIDTH - xBorders[segment.y]) {
+            segment.x = this.dirX ? GRID_WIDTH - 1 - segment.x + this.dirX : segment.x;
+            segment.y = this.dirY ? GRID_HEIGHT - 1 - segment.y + this.dirY : segment.y;
         }
     };
 
@@ -304,21 +284,21 @@ keyDown = function (e) {
 clearScreen = function () {
     context.fillStyle = COLOR_BGR;
     context.fillRect(0, 0, canvas.width, canvas.height);
-    for(i=0;i<GRID_HEIGHT;i++){
-        for(j=xBorders[i];j<GRID_WIDTH-xBorders[i];j++){
-            drawSquare(new Segment(j,i),COLOR_BGR2);
+    for (i = 0; i < GRID_HEIGHT; i++) {
+        for (j = xBorders[i]; j < GRID_WIDTH - xBorders[i]; j++) {
+            drawSquare(new Segment(j, i), COLOR_BGR2);
         }
     }
 };
 
 calculateBorders = function () {
-    var coef = GRID_WIDTH/GRID_HEIGHT;
+    var coef = GRID_WIDTH / GRID_HEIGHT;
     var radius = GRID_HEIGHT / 2;
     var adjacent;
-    for (var i = 0; i < GRID_HEIGHT/2; i++) {
+    for (var i = 0; i < GRID_HEIGHT / 2; i++) {
         adjacent = radius - (i + 0.2);
-        xBorders[i] =  Math.round((radius -Math.sqrt((radius * radius - adjacent * adjacent)))*coef);
-        xBorders[GRID_HEIGHT- (i + 1)] = xBorders[i];
+        xBorders[i] = Math.round((radius - Math.sqrt((radius * radius - adjacent * adjacent))) * coef);
+        xBorders[GRID_HEIGHT - (i + 1)] = xBorders[i];
     }
 }
 

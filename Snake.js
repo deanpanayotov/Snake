@@ -259,7 +259,6 @@ gameOver = function () {
 newGame = function () {
     clearScreen();
     score.innerHTML = gameScore = 0;
-    gameTime = 0;
     snake = new Snake();
     dropFood();
     changeGameSpeed(INITIAL_GAME_SPEED);
@@ -284,8 +283,8 @@ keyDown = function (e) {
 clearScreen = function () {
     context.fillStyle = COLOR_BGR;
     context.fillRect(0, 0, canvas.width, canvas.height);
-    for (i = 0; i < GRID_HEIGHT; i++) {
-        for (j = xBorders[i]; j < GRID_WIDTH - xBorders[i]; j++) {
+    for (var i = 0; i < GRID_HEIGHT; i++) {
+        for (var j = xBorders[i]; j < GRID_WIDTH - xBorders[i]; j++) {
             drawSquare(new Segment(j, i), COLOR_BGR2);
         }
     }
@@ -300,7 +299,7 @@ calculateBorders = function () {
         xBorders[i] = Math.round((radius - Math.sqrt((radius * radius - adjacent * adjacent))) * coef);
         xBorders[GRID_HEIGHT - (i + 1)] = xBorders[i];
     }
-}
+};
 
 /////////////////////////////////////////////////////
 

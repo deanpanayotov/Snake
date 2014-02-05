@@ -30,8 +30,42 @@ function Snake() {
 
     this.initSegments = function () {
         //Pick a starting point
-        var x = Math.floor(Math.random() * GRID_WIDTH);
-        var y = Math.floor(Math.random() * GRID_HEIGHT);
+        console.log("dirX:" + this.dirX + " dirY:" + this.dirY);
+        var y;
+        if (this.dirY == 1) {
+            y = INITIAL_SEGMENT_COUNT - 1 + Math.floor(Math.random() * (GRID_HEIGHT - (INITIAL_SEGMENT_COUNT - 1)));
+            console.log("case 6:" + y);
+        } else if (this.dirY == -1) {
+            y = Math.floor(Math.random() * (GRID_HEIGHT - (INITIAL_SEGMENT_COUNT - 1)));
+            console.log("case 7:" + y);
+        } else {
+            y = Math.floor(Math.random() * GRID_HEIGHT);
+            console.log("case 8:" + y);
+        }
+        var x;
+        if (this.dirX == 1) {
+            x = xBorders[y] + INITIAL_SEGMENT_COUNT - 1 + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y] * 2 - INITIAL_SEGMENT_COUNT));
+            console.log("case 0:" + x);
+        } else if (this.dirX == -1) {
+            x = xBorders[y] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y] * 2 - INITIAL_SEGMENT_COUNT));
+            console.log("case 1:" + x);
+        } else if (this.dirY == 1) {
+            if (y >= GRID_HEIGHT / 2 + INITIAL_SEGMENT_COUNT / 2) {
+                x = xBorders[y] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y] * 2));
+                console.log("case 2:" + x);
+            } else {
+                x = xBorders[y - (INITIAL_SEGMENT_COUNT - 1)] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y - (INITIAL_SEGMENT_COUNT - 1)] * 2));
+                console.log("case 3:" + x);
+            }
+        } else {
+            if (y <= GRID_HEIGHT / 2 - INITIAL_SEGMENT_COUNT / 2) {
+                x = xBorders[y] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y] * 2));
+                console.log("case 4:" + x);
+            } else {
+                x = xBorders[y + (INITIAL_SEGMENT_COUNT - 1)] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y + (INITIAL_SEGMENT_COUNT - 1)] * 2));
+                console.log("case 5:" + x);
+            }
+        }
 
         //
         this.segments = [];
@@ -227,8 +261,9 @@ function Stopwatch(text, updateInterval) {
 
 dropFood = function () {
     do {
-        //floor not round because round can return GRID_WIDTH/GRID_HEIGHT which would be outside of canvas!
-        food.segment = new Segment(Math.floor(Math.random() * GRID_WIDTH), Math.floor(Math.random() * GRID_HEIGHT));
+        var y = Math.floor(Math.random() * GRID_HEIGHT);
+        var x = xBorders[y] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y] * 2));
+        food.segment = new Segment(x, y);
     } while (foodTouchesSnake());
 };
 

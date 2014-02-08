@@ -91,10 +91,12 @@ function Snake() {
                 changeGameSpeed(Math.max(MIN_GAME_SPEED, Math.round(gameSpeed - GAME_SPEED_STEP * gameSpeed)));
                 score.innerHTML = ++gameScore;
             } else {
-                drawSquare(this.segments.pop(), COLOR_BGR2);
+                var tail = this.segments.pop();
+                drawSquare(tail, bgrColors[tail.x][tail.y]);
             }
             this.segments.unshift(head);
-            drawSquare(this.segments[0], COLOR_FRGR);
+            var color = "hsl(" + (COLOR_FRGR_H + Math.round(Math.random() * COLOR_FRGR_H_DEVIATION)) + "," + (COLOR_FRGR_S + Math.round(Math.random() * COLOR_FRGR_S_DEVIATION)) + "%," + (COLOR_FRGR_L + Math.round(Math.random() * COLOR_FRGR_L_DEVIATION)) + "%)";
+            drawSquare(this.segments[0], color);
             this.prevDirX = this.dirX;
             this.prevDirY = this.dirY;
         }
@@ -171,16 +173,15 @@ function Segment(x, y) {
     this.y = y;
 }
 
-function Blinker(segment, color) {
+function Blinker(segment) {
     this.blinkTime = DEFAULT_BLINK_TIME;
-    this.color = color ? color : COLOR_BGR;
     this.segment = segment;
-
+    this.color = COLOR_BGR2;
     this.blink = function () {
-        if (this.color === COLOR_BGR)
-            this.color = COLOR_FRGR;
+        if (this.color === COLOR_FRGR)
+            this.color = bgrColors[this.segment.x][this.segment.y];
         else
-            this.color = COLOR_BGR;
+            this.color = COLOR_FRGR;
         if (this.segment) {
             drawSquare(this.segment, this.color);
         }
@@ -320,7 +321,8 @@ clearScreen = function () {
     context.fillRect(0, 0, canvas.width, canvas.height);
     for (var i = 0; i < GRID_HEIGHT; i++) {
         for (var j = xBorders[i]; j < GRID_WIDTH - xBorders[i]; j++) {
-            drawSquare(new Segment(j, i), COLOR_BGR2);
+            console.log(bgrColors[j][i]);
+            drawSquare(new Segment(j, i), bgrColors[j][i]);
         }
     }
 };
@@ -335,6 +337,20 @@ calculateBorders = function () {
         xBorders[GRID_HEIGHT - (i + 1)] = xBorders[i];
     }
 };
+
+
+generateColors = function(){
+    bgrColors = [];
+    for(var i=0;i<GRID_WIDTH;i++){
+        bgrColors[i] = [];
+        for(var j=0;j<GRID_HEIGHT;j++){
+            bgrColors[i][j] = "hsl(" + (COLOR_BGR2_H + Math.round(Math.random() * COLOR_BGR2_H_DEVIATION)) +
+                "," + (COLOR_BGR2_S + Math.round(Math.random() * COLOR_BGR2_S_DEVIATION)) + "%," +
+                (COLOR_BGR2_L + Math.round(Math.random() * COLOR_BGR2_L_DEVIATION)) + "%)";
+            console.log(bgrColors[i][j]);
+        }
+    }
+}
 
 /////////////////////////////////////////////////////
 
@@ -354,6 +370,22 @@ calculateBorders();
 var COLOR_BGR = "#334467";
 var COLOR_BGR2 = "#243048";
 var COLOR_FRGR = "#DAEF6B";
+
+var COLOR_FRGR_H = 70;
+var COLOR_FRGR_S = 80;
+var COLOR_FRGR_L = 68;
+
+var COLOR_FRGR_H_DEVIATION = 10;
+var COLOR_FRGR_S_DEVIATION = 10;
+var COLOR_FRGR_L_DEVIATION = 10;
+
+var COLOR_BGR2_H = 220;
+var COLOR_BGR2_S = 33;
+var COLOR_BGR2_L = 21;
+
+var COLOR_BGR2_H_DEVIATION = 8;
+var COLOR_BGR2_S_DEVIATION = 6;
+var COLOR_BGR2_L_DEVIATION = 5;
 
 
 var KEY_w = 119;
@@ -383,6 +415,8 @@ var snake;
 var gameScore;
 var stopWatch = new Stopwatch(time);
 var food = new Blinker(undefined, undefined);
+var bgrColors = [];
+generateColors();
 food.start();
 var game;
 

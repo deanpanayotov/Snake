@@ -30,40 +30,30 @@ function Snake() {
 
     this.initSegments = function () {
         //Pick a starting point
-        //console.log("dirX:" + this.dirX + " dirY:" + this.dirY);
         var y;
         if (this.dirY == 1) {
             y = INITIAL_SEGMENT_COUNT - 1 + Math.floor(Math.random() * (GRID_HEIGHT - (INITIAL_SEGMENT_COUNT - 1)));
-            //console.log("case 6:" + y);
         } else if (this.dirY == -1) {
             y = Math.floor(Math.random() * (GRID_HEIGHT - (INITIAL_SEGMENT_COUNT - 1)));
-            //console.log("case 7:" + y);
         } else {
             y = Math.floor(Math.random() * GRID_HEIGHT);
-            //console.log("case 8:" + y);
         }
         var x;
         if (this.dirX == 1) {
             x = xBorders[y] + INITIAL_SEGMENT_COUNT - 1 + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y] * 2 - INITIAL_SEGMENT_COUNT));
-            //console.log("case 0:" + x);
         } else if (this.dirX == -1) {
             x = xBorders[y] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y] * 2 - INITIAL_SEGMENT_COUNT));
-            //console.log("case 1:" + x);
         } else if (this.dirY == 1) {
             if (y >= GRID_HEIGHT / 2 + INITIAL_SEGMENT_COUNT / 2) {
                 x = xBorders[y] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y] * 2));
-                //console.log("case 2:" + x);
             } else {
                 x = xBorders[y - (INITIAL_SEGMENT_COUNT - 1)] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y - (INITIAL_SEGMENT_COUNT - 1)] * 2));
-                //console.log("case 3:" + x);
             }
         } else {
             if (y <= GRID_HEIGHT / 2 - INITIAL_SEGMENT_COUNT / 2) {
                 x = xBorders[y] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y] * 2));
-                //console.log("case 4:" + x);
             } else {
                 x = xBorders[y + (INITIAL_SEGMENT_COUNT - 1)] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y + (INITIAL_SEGMENT_COUNT - 1)] * 2));
-                //console.log("case 5:" + x);
             }
         }
 
@@ -265,7 +255,7 @@ Color = function (h, s, l) {
     this.s = s;
     this.l = l;
     this.color = "hsl(" + h + "," + s + "%," + l + "%)";
-}
+};
 
 /////////////////////////////////////////////////////
 
@@ -327,11 +317,9 @@ keyDown = function (e) {
 
 clearScreen = function () {
     context.fillStyle = COLOR_BGR.color;
-    console.log(context.fillStyle);
     context.fillRect(0, 0, canvas.width, canvas.height);
     for (var i = 0; i < GRID_HEIGHT; i++) {
         for (var j = xBorders[i]; j < GRID_WIDTH - xBorders[i]; j++) {
-            //console.log(bgrColors[j][i]);
             drawSquare(new Segment(j, i), bgrColors[i][j]);
         }
     }
@@ -352,48 +340,51 @@ calculateBorders = function () {
 
 
 generateColors = function () {
-    //var variations = generateVariations();
     var cEdge = calculateEdge();
-    //console.log("cEdge" + cEdge);
-    var edge, h, s, l, percentage, hh, ss, ll;
+    var variations = generateVariations(COLOR_BGR3, COLOR_BGR, cEdge + 1);
+    var edge;
     bgrColors = [];
     for (var i = 0; i < GRID_HEIGHT; i++) {
         bgrColors[i] = [];
         edge = xBorders[i] + cEdge;
-        //console.log("xBorders[" + i + "] " + xBorders[i] + " : " + edge);
         for (var j = xBorders[i]; j < GRID_WIDTH - xBorders[i]; j++) {
-            h = COLOR_BGR2.h;
-            s = COLOR_BGR2.s;
-            l = COLOR_BGR2.l;
-            if (j < edge || j >= GRID_WIDTH - edge) {
-                percentage = (cEdge + 1) - (edge - (j > GRID_WIDTH / 2 ? GRID_WIDTH - j - 1 : j));
-                if (i == 5) {
-                    //console.log(percentage);
-                }
-                hh = Math.ceil((COLOR_BGR3.h - h) / (cEdge + 1));
-                ss = Math.ceil((COLOR_BGR3.s - s) / (cEdge + 1));
-                ll = Math.ceil((COLOR_BGR3.l - l) / (cEdge + 1));
-                h = COLOR_BGR3.h - hh * percentage;
-                s = COLOR_BGR3.s - ss * percentage;
-                l = COLOR_BGR3.l - ll * percentage;
+            if(i==4){
+                console.log("i case "+((j >= xBorders[i] +
+                    (i > GRID_HEIGHT / 2) ? (GRID_HEIGHT - i - 1) : i)));
             }
-            bgrColors[i][j] = "hsl(" + h + "," + s + "%," + l + "%)";
-            //console.log(bgrColors[i][j]);
+            if (
+                (i < cEdge || i >= GRID_HEIGHT - cEdge) &&
+                    (
+                        ((j >= xBorders[i] +
+                            ((i > GRID_HEIGHT / 2) ? (GRID_HEIGHT - i - 1) : i)))
+                            &&
+                            ((j < GRID_WIDTH - xBorders[i] -
+                                ((i > GRID_HEIGHT / 2) ? (GRID_HEIGHT - i - 1) : i)))
+                        )
+                ) {
+                bgrColors[i][j] = variations[(i > GRID_HEIGHT / 2 ? GRID_HEIGHT - i - 1 : i)].color;
+            } else {
+                if (j < edge || j >= GRID_WIDTH - edge) {
+                    bgrColors[i][j] = variations[(j > GRID_WIDTH / 2 ? GRID_WIDTH - j - 1 : j) - xBorders[i]].color;
+                } else {
+                    bgrColors[i][j] = COLOR_BGR2.color;
+                }
+            }
         }
     }
 };
 
 generateVariations = function (color1, color2, steps) {
     var variations = [];
-    var color3 = new Color((color1.h - color2.h) / steps, (color1.s - color2.s) / steps, (color1.l - color2.l) / steps);
+    var color3 = new Color((color2.h - color1.h) / steps, (color2.s - color1.s) / steps, (color2.l - color1.l) / steps);
     for (var i = 0; i < steps; i++) {
-        variations[i] = new Color(color1.h + Math.round(color3.h * i), color1.s + Math.round(color3.s * i), color1.l + Math.round(color3.l));
+        variations[i] = new Color(color1.h + Math.round(color3.h * i), color1.s + Math.round(color3.s * i), color1.l + Math.round(color3.l * i));
     }
     return variations;
-}
+};
 
 calculateEdge = function () {
-    return Math.round(GRID_WIDTH / 3);
+    return Math.round(Math.max(GRID_WIDTH,GRID_HEIGHT) / 4);
 };
 
 /////////////////////////////////////////////////////
@@ -405,16 +396,16 @@ var score = document.getElementById('score');
 var time = document.getElementById('time');
 var CELL_SIZE = 10;
 var CELL_PADDING = 1;
-var GRID_WIDTH = 26;
-var GRID_HEIGHT = 25;
+var GRID_WIDTH = 100;
+var GRID_HEIGHT = 100;
 
 var xBorders = calculateBorders();
 
 var COLOR_BGR = new Color(220, 34, 30); //#334467
+var COLOR_BGR2 = new Color(220, 34, 30); //#243048
 var COLOR_BGR3 = new Color(220, 20, 20);
 var COLOR_FRGR = new Color(70, 80, 68); //#DAEF6B
 var COLOR_FRGR_DEVIATION = new Color(10, 10, 10);
-var COLOR_BGR2 = new Color(220, 34, 30); //#243048
 
 
 var KEY_w = 119;
@@ -430,7 +421,7 @@ var KEY_d = 100;
 var KEY_D = 68;
 var KEY_RIGHT = 39;
 
-var INITIAL_GAME_SPEED = 140;
+var INITIAL_GAME_SPEED = 100;
 var GAME_SPEED_STEP = 0.05;
 var MIN_GAME_SPEED = 20;
 var DEFAULT_BLINK_TIME = 100;

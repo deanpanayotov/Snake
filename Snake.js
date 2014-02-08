@@ -396,8 +396,8 @@ var score = document.getElementById('score');
 var time = document.getElementById('time');
 var CELL_SIZE = 10;
 var CELL_PADDING = 1;
-var GRID_WIDTH = 100;
-var GRID_HEIGHT = 100;
+var GRID_WIDTH = 25;
+var GRID_HEIGHT = 25;
 
 var xBorders = calculateBorders();
 
@@ -421,7 +421,7 @@ var KEY_d = 100;
 var KEY_D = 68;
 var KEY_RIGHT = 39;
 
-var INITIAL_GAME_SPEED = 100;
+var INITIAL_GAME_SPEED = 130;
 var GAME_SPEED_STEP = 0.05;
 var MIN_GAME_SPEED = 20;
 var DEFAULT_BLINK_TIME = 100;

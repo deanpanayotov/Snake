@@ -85,7 +85,16 @@ function Snake() {
                 drawSquare(tail, bgrColors[tail.y][tail.x].color);
             }
             this.segments.unshift(head);
-            var color = "hsl(" + (COLOR_FRGR.h + Math.round(Math.random() * COLOR_FRGR_DEVIATION.h)) + "," + (COLOR_FRGR.s + Math.round(Math.random() * COLOR_FRGR_DEVIATION.s)) + "%," + (COLOR_FRGR.l + Math.round(Math.random() * COLOR_FRGR_DEVIATION.l)) + "%)";
+            var distX = Math.abs(this.segments[0].x - food.segment.x), distY = Math.abs(this.segments[0].y - food.segment.y);
+            var distance = (distX < COLORING_DISTANCE && distY < COLORING_DISTANCE) ? Math.min(distX, distY) : COLORING_DISTANCE;
+            var eh = distance < COLORING_DISTANCE ? (Math.round(-1 * 30 * (COLORING_DISTANCE - distance) / 2 + Math.random() * 30 * (COLORING_DISTANCE - distance))) : 0;
+            var es = distance < COLORING_DISTANCE ? (Math.round(-1 * 4 * (COLORING_DISTANCE - distance) / 2 + Math.random() * 4 * (COLORING_DISTANCE - distance))) : 0;
+            var el = distance < COLORING_DISTANCE ? (Math.round(-1 * 4 * (COLORING_DISTANCE - distance) / 2 + Math.random() * 4 * (COLORING_DISTANCE - distance))) : 0;
+
+            var h = COLOR_FRGR.h + Math.round(Math.random() * COLOR_FRGR_DEVIATION.h) + eh;
+            var s = COLOR_FRGR.s + Math.round(Math.random() * COLOR_FRGR_DEVIATION.s) + es;
+            var l = COLOR_FRGR.l + Math.round(Math.random() * COLOR_FRGR_DEVIATION.l) + el;
+            var color = "hsl(" + h + "," + s + "%," + l + "%)";
             drawSquare(this.segments[0], color);
             this.prevDirX = this.dirX;
             this.prevDirY = this.dirY;
@@ -364,10 +373,6 @@ generateColors = function () {
         bgrColors[i] = [];
         edge = xBorders[i] + cEdge;
         for (var j = xBorders[i]; j < GRID_WIDTH - xBorders[i]; j++) {
-            if (i == 4) {
-                console.log("i case " + ((j >= xBorders[i] +
-                    (i > GRID_HEIGHT / 2) ? (GRID_HEIGHT - i - 1) : i)));
-            }
             if (
                 (i < cEdge || i >= GRID_HEIGHT - cEdge) &&
                     (
@@ -392,11 +397,9 @@ generateColors = function () {
 
 generateVariations = function (color1, color2, steps, includeSecond) {
     var variations = [];
-    console.log(color1 + "+" + color2);
     var color3 = new Color((color2.h - color1.h) / steps, (color2.s - color1.s) / steps, (color2.l - color1.l) / steps);
     for (var i = 0; i < steps + (includeSecond ? 1 : 0 ); i++) {
         variations[i] = new Color(color1.h + Math.round(color3.h * i), color1.s + Math.round(color3.s * i), color1.l + Math.round(color3.l * i));
-        console.log("variations[" + i + "]" + variations[i].h + "," + variations[i].s + "," + variations[i].l);
     }
     return variations;
 };
@@ -442,7 +445,8 @@ var KEY_RIGHT = 39;
 var INITIAL_GAME_SPEED = 130;
 var GAME_SPEED_STEP = 0.05;
 var MIN_GAME_SPEED = 20;
-var DEFAULT_BLINK_TIME =80;
+var DEFAULT_BLINK_TIME = 80;
+var COLORING_DISTANCE = 6;
 
 var gameSpeed = INITIAL_GAME_SPEED;
 

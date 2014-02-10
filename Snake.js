@@ -85,34 +85,22 @@ function Snake() {
                 drawSquare(tail, bgrColors[tail.y][tail.x].color);
             }
             this.segments.unshift(head);
-            var distX = Math.abs(this.segments[0].x - food.segment.x), distY = Math.abs(this.segments[0].y - food.segment.y);
-            var distance = (distX < COLORING_DISTANCE && distY < COLORING_DISTANCE) ? Math.max(distX, distY) : COLORING_DISTANCE; //TODO Math.max(1,..)
-            var color;
-            if (distance < COLORING_DISTANCE) {
-                var randomColor = new Color(
-                    hue,
-                    100,
-                    Math.round(100-(50/(COLORING_DISTANCE-1)*(COLORING_DISTANCE-distance)))
-                );
-                color = randomColor.color;
-                //TODO color = averageColor(COLOR_FRGR, randomColor, (1 / distance)).color;
-            } else {
-                var h = COLOR_FRGR.h + Math.round(Math.random() * COLOR_FRGR_DEVIATION.h);
-                var s = COLOR_FRGR.s + Math.round(Math.random() * COLOR_FRGR_DEVIATION.s);
-                var l = COLOR_FRGR.l + Math.round(Math.random() * COLOR_FRGR_DEVIATION.l);
-                color = "hsl(" + h + "," + s + "%," + l + "%)";
-            }
-//            var eh = distance < COLORING_DISTANCE ? (Math.round(-1 * 30 * (COLORING_DISTANCE - distance) / 2 + Math.random() * 30 * (COLORING_DISTANCE - distance))) : 0;
-//            var es = distance < COLORING_DISTANCE ? (Math.round(-1 * 4 * (COLORING_DISTANCE - distance) / 2 + Math.random() * 4 * (COLORING_DISTANCE - distance))) : 0;
-//            var el = distance < COLORING_DISTANCE ? (Math.round(-1 * 4 * (COLORING_DISTANCE - distance) / 2 + Math.random() * 4 * (COLORING_DISTANCE - distance))) : 0;
-//
-//            var h = COLOR_FRGR.h + Math.round(Math.random() * COLOR_FRGR_DEVIATION.h) + eh;
-//            var s = COLOR_FRGR.s + Math.round(Math.random() * COLOR_FRGR_DEVIATION.s) + es;
-//            var l = COLOR_FRGR.l + Math.round(Math.random() * COLOR_FRGR_DEVIATION.l) + el;
-            //var color = "hsl(" + h + "," + s + "%," + l + "%)";
-            drawSquare(this.segments[0], color);
+            drawSquare(this.segments[0], this.generateHeadColor().color);
             this.prevDirX = this.dirX;
             this.prevDirY = this.dirY;
+        }
+    };
+
+    this.generateHeadColor = function () {
+        var distX = Math.abs(this.segments[0].x - food.segment.x), distY = Math.abs(this.segments[0].y - food.segment.y);
+        var distance = (distX < COLORING_DISTANCE && distY < COLORING_DISTANCE) ? Math.max(distX, distY) : COLORING_DISTANCE;
+        if (distance < COLORING_DISTANCE) {
+            return new Color(this.hue, 100, Math.round(100 - (50 / (COLORING_DISTANCE - 1) * (COLORING_DISTANCE - distance))));
+        } else {
+            var h = COLOR_FRGR.h + Math.round(Math.random() * COLOR_FRGR_DEVIATION.h);
+            var s = COLOR_FRGR.s + Math.round(Math.random() * COLOR_FRGR_DEVIATION.s);
+            var l = COLOR_FRGR.l + Math.round(Math.random() * COLOR_FRGR_DEVIATION.l);
+            return new Color(h, s, l);
         }
     };
 
@@ -305,7 +293,7 @@ dropFood = function () {
         var x = xBorders[y] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y] * 2));
         food.setSegment(new Segment(x, y));
     } while (foodTouchesSnake());
-    hue = Math.round(Math.random() * 360);
+    snake.hue = Math.round(Math.random() * 360);
 };
 
 changeGameSpeed = function (speed) {
@@ -367,13 +355,12 @@ clearScreen = function () {
 };
 
 calculateBorders = function () {
-    var coef = GRID_WIDTH / GRID_HEIGHT;
     var radius = GRID_HEIGHT / 2;
     var adjacent;
     var xBorders = [];
     for (var i = 0; i < GRID_HEIGHT / 2; i++) {
         adjacent = radius - (i + 0.2);
-        xBorders[i] = Math.round((radius - Math.sqrt((radius * radius - adjacent * adjacent))) * coef);
+        xBorders[i] = Math.round((radius - Math.sqrt((radius * radius - adjacent * adjacent))) * (GRID_WIDTH / GRID_HEIGHT));
         xBorders[GRID_HEIGHT - (i + 1)] = xBorders[i];
     }
     return xBorders;
@@ -384,9 +371,9 @@ generateColors = function () {
     var cEdge = calculateEdge();
     var variations = generateVariations(COLOR_BGR3, COLOR_BGR, cEdge + 1, false);
     var edge;
-    bgrColors = [];
+    var colors = [];
     for (var i = 0; i < GRID_HEIGHT; i++) {
-        bgrColors[i] = [];
+        colors[i] = [];
         edge = xBorders[i] + cEdge;
         for (var j = xBorders[i]; j < GRID_WIDTH - xBorders[i]; j++) {
             if (
@@ -399,16 +386,17 @@ generateColors = function () {
                                 ((i > GRID_HEIGHT / 2) ? (GRID_HEIGHT - i - 1) : i)))
                         )
                 ) {
-                bgrColors[i][j] = variations[(i > GRID_HEIGHT / 2 ? GRID_HEIGHT - i - 1 : i)];
+                colors[i][j] = variations[(i > GRID_HEIGHT / 2 ? GRID_HEIGHT - i - 1 : i)];
             } else {
                 if (j < edge || j >= GRID_WIDTH - edge) {
-                    bgrColors[i][j] = variations[(j > GRID_WIDTH / 2 ? GRID_WIDTH - j - 1 : j) - xBorders[i]];
+                    colors[i][j] = variations[(j > GRID_WIDTH / 2 ? GRID_WIDTH - j - 1 : j) - xBorders[i]];
                 } else {
-                    bgrColors[i][j] = COLOR_BGR2;
+                    colors[i][j] = COLOR_BGR2;
                 }
             }
         }
     }
+    return colors
 };
 
 generateVariations = function (color1, color2, steps, includeSecond) {
@@ -425,13 +413,10 @@ calculateEdge = function () {
 };
 
 averageColor = function (color1, color2, percentage) {
-    var difH = (color1.h - color2.h);
-    var difS = (color1.s - color2.s);
-    var difL = (color1.l - color2.l);
     return new Color(
-        Math.round(color1.h - difH * percentage),
-        Math.round(color1.s - difS * percentage),
-        Math.round(color1.l - difL * percentage)
+        Math.round(color1.h - (color1.h - color2.h) * percentage),
+        Math.round(color1.s - (color1.s - color2.s) * percentage),
+        Math.round(color1.l - (color1.l - color2.l) * percentage)
     );
 };
 
@@ -452,7 +437,7 @@ var xBorders = calculateBorders();
 var COLOR_BGR = new Color(220, 34, 30); //#334467
 var COLOR_BGR2 = new Color(220, 34, 30); //#243048
 var COLOR_BGR3 = new Color(220, 20, 20);
-var COLOR_FRGR = new Color(180, 100, 100); //#DAEF6B
+var COLOR_FRGR = new Color(180, 100, 100); //white
 var COLOR_FRGR_DEVIATION = new Color(10, 10, 10);
 
 
@@ -484,9 +469,7 @@ var snake;
 var gameScore;
 var stopWatch = new Stopwatch(time, 100);
 var food = new Blinker(undefined, 10);
-var bgrColors = [];
-generateColors();
-var hue;
+var bgrColors = generateColors();
 food.start();
 var game;
 

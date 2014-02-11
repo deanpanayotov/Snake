@@ -30,34 +30,15 @@ function Snake() {
 
     this.initSegments = function () {
         //Pick a starting point
-        var y;
-        if (this.dirY == 1) {
-            y = INITIAL_SEGMENT_COUNT - 1 + Math.floor(Math.random() * (GRID_HEIGHT - (INITIAL_SEGMENT_COUNT - 1)));
-        } else if (this.dirY == -1) {
-            y = Math.floor(Math.random() * (GRID_HEIGHT - (INITIAL_SEGMENT_COUNT - 1)));
-        } else {
-            y = Math.floor(Math.random() * GRID_HEIGHT);
-        }
-        var x;
-        if (this.dirX == 1) {
-            x = xBorders[y] + INITIAL_SEGMENT_COUNT - 1 + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y] * 2 - INITIAL_SEGMENT_COUNT));
-        } else if (this.dirX == -1) {
-            x = xBorders[y] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y] * 2 - INITIAL_SEGMENT_COUNT));
-        } else if (this.dirY == 1) {
-            if (y >= GRID_HEIGHT / 2 + INITIAL_SEGMENT_COUNT / 2) {
-                x = xBorders[y] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y] * 2));
-            } else {
-                x = xBorders[y - (INITIAL_SEGMENT_COUNT - 1)] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y - (INITIAL_SEGMENT_COUNT - 1)] * 2));
-            }
-        } else {
-            if (y <= GRID_HEIGHT / 2 - INITIAL_SEGMENT_COUNT / 2) {
-                x = xBorders[y] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y] * 2));
-            } else {
-                x = xBorders[y + (INITIAL_SEGMENT_COUNT - 1)] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y + (INITIAL_SEGMENT_COUNT - 1)] * 2));
-            }
-        }
+        var y = (this.dirY == 1 ? (INITIAL_SEGMENT_COUNT - 1) : 0) + Math.floor(Math.random() * (GRID_HEIGHT - (this.dirY != 0 ? (INITIAL_SEGMENT_COUNT - 1) : 0)));
 
-        //
+        var yExtra = 0;
+        if (this.dirY == 1 && (y < GRID_HEIGHT / 2 + INITIAL_SEGMENT_COUNT / 2))
+            yExtra = (INITIAL_SEGMENT_COUNT - 1) * (-1);
+        else if (this.dirY == -1 && (y >= GRID_HEIGHT / 2 - INITIAL_SEGMENT_COUNT / 2))
+            yExtra = (INITIAL_SEGMENT_COUNT - 1);
+        var x = xBorders[y + yExtra] + (this.dirX == 1 ? (INITIAL_SEGMENT_COUNT - 1) : 0) + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y + yExtra] * 2 - (this.dirX != 0 ? INITIAL_SEGMENT_COUNT : 0)));
+
         this.segments = [];
         for (var i = 0; i < INITIAL_SEGMENT_COUNT; i++) {
             this.segments.push(new Segment((GRID_WIDTH + x) % GRID_WIDTH, (GRID_HEIGHT + y) % GRID_HEIGHT));

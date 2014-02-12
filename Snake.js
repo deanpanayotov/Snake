@@ -30,15 +30,13 @@ function Snake() {
 
     this.initSegments = function () {
         //Pick a starting point
-        var y = (this.dirY == 1 ? (INITIAL_SEGMENT_COUNT - 1) : 0) + Math.floor(Math.random() * (GRID_HEIGHT - (this.dirY != 0 ? (INITIAL_SEGMENT_COUNT - 1) : 0)));
-
+        //CAUTION: Black magic ahead
+        var y = (this.dirY == 1 ? (INITIAL_SEGMENT_COUNT - 1) : 0) + Math.floor(Math.random() * (GRID_HEIGHT - (this.dirY ? ((INITIAL_SEGMENT_COUNT - 1) * (this.dirY == 1 ? 2 : 1)) : 0)));
         var yExtra = 0;
-        if (this.dirY == 1 && (y < GRID_HEIGHT / 2 + INITIAL_SEGMENT_COUNT / 2))
-            yExtra = (INITIAL_SEGMENT_COUNT - 1) * (-1);
-        else if (this.dirY == -1 && (y >= GRID_HEIGHT / 2 - INITIAL_SEGMENT_COUNT / 2))
-            yExtra = (INITIAL_SEGMENT_COUNT - 1);
-        var x = xBorders[y + yExtra] + (this.dirX == 1 ? (INITIAL_SEGMENT_COUNT - 1) : 0) + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y + yExtra] * 2 - (this.dirX != 0 ? INITIAL_SEGMENT_COUNT : 0)));
-
+        if (this.dirY && ((y * this.dirY) < ((GRID_HEIGHT / 2 + (INITIAL_SEGMENT_COUNT / 2) * this.dirY  ) * this.dirY)))
+            yExtra = (INITIAL_SEGMENT_COUNT - 1) * this.dirY * (-1);
+        var x = xBorders[y + yExtra] + (this.dirX == 1 ? (INITIAL_SEGMENT_COUNT - 1) : 0) + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y + yExtra] * 2 - (this.dirX ? INITIAL_SEGMENT_COUNT : 0)));
+        //init the segments
         this.segments = [];
         for (var i = 0; i < INITIAL_SEGMENT_COUNT; i++) {
             this.segments.push(new Segment((GRID_WIDTH + x) % GRID_WIDTH, (GRID_HEIGHT + y) % GRID_HEIGHT));
@@ -74,14 +72,14 @@ function Snake() {
 
     this.generateHeadColor = function () {
         var distX = Math.abs(this.segments[0].x - food.segment.x), distY = Math.abs(this.segments[0].y - food.segment.y);
-        var distance = (distX < COLORING_DISTANCE && distY < COLORING_DISTANCE) ? Math.max(distX, distY) : COLORING_DISTANCE;
-        if (distance < COLORING_DISTANCE) {
-            return new Color(this.hue, 100, Math.round(100 - (50 / (COLORING_DISTANCE - 1) * (COLORING_DISTANCE - distance))));
+        if (distX <= COLORING_DISTANCE && distY <= COLORING_DISTANCE) {
+            return new Color(this.hue, 100, Math.round(50 + (50 / COLORING_DISTANCE) * (Math.max(distX, distY) - 1)));
         } else {
-            var h = COLOR_FRGR.h + Math.round(Math.random() * COLOR_FRGR_DEVIATION.h);
-            var s = COLOR_FRGR.s + Math.round(Math.random() * COLOR_FRGR_DEVIATION.s);
-            var l = COLOR_FRGR.l + Math.round(Math.random() * COLOR_FRGR_DEVIATION.l);
-            return new Color(h, s, l);
+            return new Color(
+                COLOR_FRGR.h + Math.round(Math.random() * COLOR_FRGR_DEVIATION.h),
+                COLOR_FRGR.s + Math.round(Math.random() * COLOR_FRGR_DEVIATION.s),
+                COLOR_FRGR.l + Math.round(Math.random() * COLOR_FRGR_DEVIATION.l)
+            );
         }
     };
 
@@ -439,7 +437,7 @@ var INITIAL_GAME_SPEED = 130;
 var GAME_SPEED_STEP = 0.05;
 var MIN_GAME_SPEED = 20;
 var DEFAULT_BLINK_TIME = 80;
-var COLORING_DISTANCE = 6;
+var COLORING_DISTANCE = 5;
 
 var gameSpeed = INITIAL_GAME_SPEED;
 

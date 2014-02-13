@@ -54,13 +54,16 @@ function Snake() {
     this.update = function () {
         var head = new Segment((GRID_WIDTH + this.segments[0].x + this.dirX ) % GRID_WIDTH, (GRID_HEIGHT + this.segments[0].y + this.dirY) % GRID_HEIGHT);
         this.warpHead(head);
+        //TODO issue with bite - new food is dropped before new head is concatenated - this allows the rare case where the food spawns in the very same spot and it seems that the snake missed it
         if (this.bite(head) == 0) {
+            //TODO remove grow varialbe --> use this.bite(head) return value to evaluate situations --> make constants
             if (this.grow) {
                 this.grow = false;
                 changeGameSpeed(Math.max(MIN_GAME_SPEED, Math.round(gameSpeed - GAME_SPEED_STEP * gameSpeed)));
                 score.innerHTML = ++gameScore;
             } else {
                 var tail = this.segments.pop();
+                //TODO fix x and y switch-up maybe?
                 drawSquare(tail, bgrColors[tail.y][tail.x].color);
             }
             this.segments.unshift(head);
@@ -175,13 +178,6 @@ function Blinker(segment, steps) {
                 this.dir *= -1;
             }
         }
-//        if (this.color === COLOR_FRGR.color)
-//            this.color = bgrColors[this.segment.y][this.segment.x];
-//        else
-//            this.color = COLOR_FRGR.color;
-//        if (this.segment) {
-//            drawSquare(this.segment, this.color);
-//        }
     };
     this.start = function () {
         var that = this;
@@ -270,6 +266,7 @@ dropFood = function () {
     do {
         var y = Math.floor(Math.random() * GRID_HEIGHT);
         var x = xBorders[y] + Math.floor(Math.random() * (GRID_WIDTH - xBorders[y] * 2));
+        //TODO rework this - right now setSegment call does unnecessary calculations every thime the food spawns on the snake... maybe utilize snake.bite after refactor?
         food.setSegment(new Segment(x, y));
     } while (foodTouchesSnake());
     snake.hue = Math.round(Math.random() * 360);
@@ -345,7 +342,7 @@ calculateBorders = function () {
     return xBorders;
 };
 
-
+//TODO requires major refactor
 generateColors = function () {
     var cEdge = calculateEdge();
     var variations = generateVariations(COLOR_BGR3, COLOR_BGR, cEdge + 1, false);

@@ -2,18 +2,13 @@ body {
     font-family: 'Press Start 2P', cursive;
     font-size: 10pt;
     background-color: #334467;
-    color: #DAEF6B;
+    color: #FFFFFF;
     text-align: center;
 }
 
 #table {
     padding: 0.25%;
     margin: 0 auto;
-}
-
-#canvas {
-    border-top: 2px dashed;
-    border-bottom: 2px dashed;
 }
 
 #game_over {
